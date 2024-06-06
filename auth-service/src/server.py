@@ -1,11 +1,11 @@
 import jwt, datetime, os
-from zoneinfo import ZoneInfo
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, Header
 from sqlalchemy.orm import Session
-from database.database import get_db
-from model.model import User
-from schema.schema import UserSchema
+from src.database.database import get_db
+from src.model.model import User
+from src.schema.schema import UserSchema
 from dotenv import load_dotenv
+from typing import Annotated
 
 load_dotenv()
 JWT_SECRET = os.getenv("JWT_SECRET")
@@ -26,9 +26,10 @@ async def login(user: UserSchema, db: Session = Depends(get_db)):
     return token
 
 @app.post("/validate", response_model=dict)
-async def validate(token: str, db: Session = Depends(get_db)):
+async def validate(authorization: Annotated[str, Header()], db: Session = Depends(get_db)):
+    encoded_jwt = authorization.split(" ")[1]
     try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        payload = jwt.decode(encoded_jwt, JWT_SECRET, algorithms=["HS256"])
     except Exception:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
     return {"username": payload["username"], "admin": payload["admin"]}
@@ -37,7 +38,7 @@ def createJWT(username, secret, authz):
     return jwt.encode(
         {
             "username": username,
-            "exp": datetime.datetime.now(tz=ZoneInfo('UTC')) + datetime.timedelta(days=1),
+            "exp": datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=1),
             "iat": datetime.datetime.utcnow(),
             "admin": authz
         },
