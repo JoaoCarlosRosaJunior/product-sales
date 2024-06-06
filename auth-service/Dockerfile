@@ -10,4 +10,4 @@ COPY . /app
 
 EXPOSE 5000
 
-CMD ["uvicorn", "src.server:app"]
+CMD ["python3", "src/server.py"]

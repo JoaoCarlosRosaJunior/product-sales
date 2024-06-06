@@ -1,0 +1,10 @@
+apiversion: v1
+kind: ConfigMap
+metadata:
+  name: auth-configmap
+data:
+  POSTGRES_USERNAME: user
+  POSTGRES_HOST: 0.0.0.0
+  POSTGRES_PORT: 5432
+
+  

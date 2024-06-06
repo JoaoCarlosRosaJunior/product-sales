@@ -1,9 +1,10 @@
 import jwt, datetime, os
+import uvicorn
 from fastapi import FastAPI, HTTPException, Depends, status, Header
 from sqlalchemy.orm import Session
-from src.database.database import get_db
-from src.model.model import User
-from src.schema.schema import UserSchema
+from database.database import get_db
+from model.model import User
+from schema.schema import UserSchema
 from dotenv import load_dotenv
 from typing import Annotated
 
@@ -47,5 +48,4 @@ def createJWT(username, secret, authz):
     )
 
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(app.run())
+    uvicorn.run("server:app", host="0.0.0.0", port=5000)
